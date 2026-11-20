@@ -1,0 +1,161 @@
+---
+import PropertyCard from '../../components/PropertyCard.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getProperties, localitiesOf, type PropertyType } from '../../lib/properties';
+
+const properties = await getProperties();
+const localities = localitiesOf(properties);
+const rentals = properties.filter((p) => p.operation === 'alquiler').length;
+
+// Los mismos botones de tipo que el sitio anterior.
+const types: { value: PropertyType; label: string; aria: string }[] = [
+  { value: 'casa', label: 'Casa', aria: 'Casas' },
+  { value: 'chalet', label: 'Chalet', aria: 'Chalets' },
+  { value: 'galpon', label: 'Galpón', aria: 'Galpones' },
+  { value: 'local', label: 'Local', aria: 'Locales' },
+  { value: 'lote', label: 'Lote', aria: 'Lotes' },
+  { value: 'departamento', label: 'Depto.', aria: 'Departamentos' },
+  { value: 'duplex', label: 'Dúplex', aria: 'Dúplex' },
+];
+---
+
+<Layout
+  title="Propiedades | Rizzo Propiedades — Lanús, GBA"
+  description="Todas las propiedades en venta y alquiler de Rizzo Propiedades. Casas, locales, galpones y terrenos en Lanús, Avellaneda, Banfield y zona sur GBA."
+  active="propiedades"
+  preloadImage="/img/hero.jpg"
+>
+  <div class="page-hero-banner">
+    <img src="/img/hero.jpg" alt="Propiedades en Lanús y Gran Buenos Aires" fetchpriority="high" loading="eager" />
+    <div class="page-hero-banner-overlay" aria-hidden="true"></div>
+    <div class="page-hero-banner-content">
+      <p class="page-hero-banner-eyebrow">Rizzo Propiedades</p>
+      <h1 class="page-hero-banner-title">Nuestras Propiedades</h1>
+    </div>
+  </div>
+
+  <div class="props-filter-bar" role="search" aria-label="Filtrar propiedades">
+    <div class="props-filter-inner">
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">Operación:</span>
+          <button class="filter-btn is-active" data-filter="todos" data-filter-group="op" aria-label="Ver todas las operaciones">Todos</button>
+          <button class="filter-btn" data-filter="venta" data-filter-group="op" aria-label="Filtrar por venta">Venta</button>
+          <button class="filter-btn" data-filter="alquiler" data-filter-group="op" aria-label="Filtrar por alquiler">Alquiler</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Tipo:</span>
+          <button class="filter-btn is-active" data-filter="todos" data-filter-group="tipo" aria-label="Ver todos los tipos">Todos</button>
+          {
+            types.map((t) => (
+              <button class="filter-btn" data-filter={t.value} data-filter-group="tipo" aria-label={t.aria}>
+                {t.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <div class="filter-row filter-row--advanced">
+        <div class="filter-group">
+          <label class="filter-label" for="filter-zona">Localidad:</label>
+          <select class="filter-select" id="filter-zona" aria-label="Filtrar por localidad">
+            <option value="">Todas</option>
+            {localities.map((l) => <option value={l.id}>{l.name}</option>)}
+          </select>
+        </div>
+      </div>
+      <div class="filter-row filter-row--advanced">
+        <div class="filter-group">
+          <label class="filter-label" for="filter-ambientes">Ambientes:</label>
+          <select class="filter-select" id="filter-ambientes" aria-label="Filtrar por ambientes">
+            <option value="0">Todos</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="filter-banios">Baños:</label>
+          <select class="filter-select" id="filter-banios" aria-label="Filtrar por baños">
+            <option value="0">Todos</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn" id="filter-cochera" aria-pressed="false" aria-label="Solo propiedades con cochera">Cochera</button>
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn" id="filter-credito" aria-pressed="false" aria-label="Solo propiedades aptas para crédito">Apto crédito</button>
+        </div>
+        <div class="filter-group filter-group--price">
+          <span class="filter-label">Precio:</span>
+          <input class="filter-input" id="filter-precio-min" type="number" min="0" step="1000" placeholder="Mín" aria-label="Precio mínimo" />
+          <span class="filter-price-sep">–</span>
+          <input class="filter-input" id="filter-precio-max" type="number" min="0" step="1000" placeholder="Máx" aria-label="Precio máximo" />
+        </div>
+        <span class="filter-count" aria-live="polite" aria-atomic="true">{properties.length} propiedades</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="props-page" aria-labelledby="props-page-title">
+    <div class="container">
+      <h2 class="sr-only" id="props-page-title">Listado de propiedades</h2>
+      <div class="props-page-grid">
+        {properties.map((property) => <PropertyCard property={property} filterable />)}
+      </div>
+      {
+        properties.length === 0 && (
+          <p class="props-empty">
+            Estamos actualizando nuestra cartera. <a href="/#contacto">Consultanos</a> por las propiedades disponibles.
+          </p>
+        )
+      }
+
+      {
+        rentals > 0 && (
+          <div class="alquileres-note reveal">
+            <p class="alquileres-note-title">¿Buscás alquiler?</p>
+            <p class="alquileres-note-text">
+              Contamos con {rentals} propiedades en alquiler disponibles actualmente. Contactanos para conocer los
+              detalles.
+            </p>
+            <a href="/#contacto" class="btn btn-gold">Consultar alquileres</a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Estilos que el sitio anterior tenía en línea. */
+  .alquileres-note {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    text-align: center;
+  }
+  .alquileres-note-title {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+  .alquileres-note-text {
+    font-size: 0.9375rem;
+    color: var(--ink-mute);
+    margin-bottom: 1.25rem;
+  }
+</style>
+
+<script>
+  import { initFilters } from '../../scripts/filters';
+  initFilters();
+</script>

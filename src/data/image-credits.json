@@ -1,0 +1,24 @@
+{
+  "hero": {
+    "src": "/img/hero.jpg",
+    "title": "Modern Northwest Home",
+    "creator": "pnwra",
+    "creator_url": "https://www.flickr.com/photos/17573364@N00",
+    "license": "by",
+    "license_version": "2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "foreign_landing_url": "https://www.flickr.com/photos/17573364@N00/1045323592",
+    "source": "flickr"
+  },
+  "about": {
+    "src": "/img/about.jpg",
+    "title": "The Alexandra Theatre - Suffolk Street Queensway",
+    "creator": "ell brown",
+    "creator_url": "https://www.flickr.com/photos/39415781@N06",
+    "license": "by",
+    "license_version": "2.0",
+    "license_url": "https://creativecommons.org/licenses/by/2.0/",
+    "foreign_landing_url": "https://www.flickr.com/photos/39415781@N06/3621877335",
+    "source": "flickr"
+  }
+}

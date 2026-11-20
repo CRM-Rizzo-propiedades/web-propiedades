@@ -1,0 +1,57 @@
+---
+import { site } from '../config/site';
+
+interface Props {
+  /** En el inicio los enlaces son anclas de la misma página y la barra arranca transparente. */
+  home?: boolean;
+  active?: 'propiedades';
+}
+const { home = false, active } = Astro.props;
+const at = (anchor: string) => (home ? `#${anchor}` : `/#${anchor}`);
+const links = [
+  { label: 'Inicio', href: home ? '#inicio' : '/' },
+  { label: 'Propiedades', href: '/propiedades', key: 'propiedades' },
+  { label: 'Servicios', href: at('servicios') },
+  { label: 'Nosotros', href: at('nosotros') },
+  { label: 'Contacto', href: at('contacto') },
+];
+---
+
+<header class:list={['nav-header', { 'is-scrolled': !home }]} id="nav-header">
+  <nav class="nav" aria-label="Navegación principal">
+    <a href="/" class="nav-logo" aria-label={`${site.name} - Inicio`}>
+      <img src="/img/logo.png" alt={site.name} class="nav-logo-img" height="56" />
+    </a>
+    <ul class="nav-links" role="list">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} class:list={['nav-link', { 'is-active': l.key && l.key === active }]}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <button class="nav-tasacion-btn" type="button" data-tasacion-open aria-haspopup="dialog" aria-label="Tasá tu propiedad">
+      Tasá tu propiedad
+    </button>
+    <button class="nav-burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-overlay">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<div class="nav-overlay" id="nav-overlay" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+  <button class="nav-overlay-close" aria-label="Cerrar menú">✕</button>
+  <ul class="nav-overlay-links" role="list">
+    {links.map((l) => <li><a href={l.href} class="nav-overlay-link">{l.label}</a></li>)}
+  </ul>
+  <button class="nav-overlay-tasacion" type="button" data-tasacion-open aria-haspopup="dialog">
+    ¿Cuánto vale tu propiedad?
+  </button>
+  <div class="nav-overlay-contact">
+    <a href={site.phones[0].href}>{site.phones[0].label}</a>
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+  </div>
+</div>

@@ -1,0 +1,303 @@
+---
+import PropertyCard from '../components/PropertyCard.astro';
+import Layout from '../layouts/Layout.astro';
+import { getFeaturedProperties } from '../lib/properties';
+
+const featured = await getFeaturedProperties();
+---
+
+<Layout
+  title="Rizzo Propiedades | Inmobiliaria en Lanús, GBA"
+  description="Rizzo Propiedades — Venta y alquiler de casas, departamentos, locales y galpones en Lanús y Gran Buenos Aires. Más de 10 años de experiencia."
+  home
+  preloadImage="/img/hero.jpg"
+>
+
+
+  <!-- ═══════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════ -->
+  <section class="hero" id="inicio" aria-label="Encabezado principal">
+    <div class="hero-bg-wrap">
+      <img src="/img/hero.jpg" alt="Arquitectura residencial de calidad en Gran Buenos Aires" class="hero-bg-img" fetchpriority="high" loading="eager" />
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-grain" aria-hidden="true"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow reveal">Inmobiliaria · Lanús, GBA</p>
+      <h1 class="hero-title reveal">
+        Propiedades que inspiran.<br>
+        <em>Experiencias que perduran.</em>
+      </h1>
+      <p class="hero-sub reveal">Venta y alquiler en Lanús y Gran Buenos Aires</p>
+      <div class="hero-actions reveal">
+        <a href="/propiedades" class="btn btn-gold">Ver Propiedades</a>
+        <a href="#contacto" class="btn btn-ghost">Contactanos</a>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator" aria-hidden="true">
+      <span class="scroll-line"></span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       STATS
+  ═══════════════════════════════════════ -->
+  <section class="stats" aria-label="Cifras clave">
+    <div class="container">
+      <ul class="stats-grid" role="list">
+        <li class="stat-item reveal">
+          <span class="stat-num" data-count="10" data-suffix="+">10+</span>
+          <span class="stat-label">Años de experiencia</span>
+        </li>
+        <li class="stat-item reveal">
+          <span class="stat-num" data-count="500" data-suffix="+">500+</span>
+          <span class="stat-label">Propiedades gestionadas</span>
+        </li>
+        <li class="stat-item reveal">
+          <span class="stat-num" data-count="1000" data-suffix="+">1000+</span>
+          <span class="stat-label">Clientes satisfechos</span>
+        </li>
+        <li class="stat-item reveal">
+          <span class="stat-num" data-count="5" data-suffix="">5</span>
+          <span class="stat-label">Zonas en GBA</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FEATURED PROPERTIES
+  ═══════════════════════════════════════ -->
+  <section class="featured" id="propiedades-dest" aria-labelledby="featured-title">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Cartera actual</p>
+        <h2 class="section-title" id="featured-title">Propiedades Destacadas</h2>
+        <p class="section-sub">Selección premium de nuestra cartera actual</p>
+      </div>
+
+      {
+        featured.length > 0 ? (
+          <div class="props-grid">
+            {featured.map((property) => <PropertyCard property={property} />)}
+          </div>
+        ) : (
+          <p class="props-empty">Estamos actualizando nuestra cartera. Consultanos por las propiedades disponibles.</p>
+        )
+      }
+
+      <div class="featured-cta reveal">
+        <a href="/propiedades" class="btn btn-outline-dark">Ver todas las propiedades</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SERVICES
+  ═══════════════════════════════════════ -->
+  <section class="services" id="servicios" aria-labelledby="services-title">
+    <div class="container">
+      <div class="section-header section-header--light reveal">
+        <p class="section-eyebrow section-eyebrow--gold">Lo que hacemos</p>
+        <h2 class="section-title section-title--light" id="services-title">Nuestros Servicios</h2>
+      </div>
+      <div class="services-grid">
+        <article class="service-card reveal">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          </div>
+          <h3 class="service-title">Venta de Propiedades</h3>
+          <p class="service-desc">Casas, departamentos, locales, galpones y terrenos en Lanús y toda la zona sur del GBA.</p>
+        </article>
+        <article class="service-card reveal">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+          </div>
+          <h3 class="service-title">Alquiler</h3>
+          <p class="service-desc">Propiedades residenciales y comerciales con gestión integral del contrato y garantías.</p>
+        </article>
+        <article class="service-card reveal">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="service-title">Tasaciones</h3>
+          <p class="service-desc">Valuación profesional de tu propiedad al precio justo del mercado actual.</p>
+        </article>
+        <article class="service-card reveal">
+          <div class="service-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="service-title">Asesoramiento Integral</h3>
+          <p class="service-desc">Te guiamos en cada paso de tu inversión con total transparencia y compromiso personal.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       ABOUT
+  ═══════════════════════════════════════ -->
+  <section class="about" id="nosotros" aria-labelledby="about-title">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text">
+          <p class="section-eyebrow reveal">Quiénes somos</p>
+          <h2 class="about-title reveal" id="about-title">
+            Una década<br>
+            <em>construyendo confianza</em>
+          </h2>
+          <div class="about-divider reveal" aria-hidden="true"></div>
+          <p class="about-body reveal">
+            Somos Rizzo Propiedades, una inmobiliaria familiar con más de 10 años de trayectoria en Lanús y el Gran Buenos Aires. Nos especializamos en la compra, venta y alquiler de propiedades residenciales y comerciales, brindando un servicio personalizado, transparente y comprometido.
+          </p>
+          <p class="about-body reveal">
+            Cada cliente, cada propiedad, cada historia es única para nosotros. No somos una empresa de transacciones — somos socios en el momento más importante de tu vida.
+          </p>
+          <p class="about-address reveal">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Amancio Alcorta 112, Lanús
+          </p>
+        </div>
+        <div class="about-img-wrap reveal">
+          <img src="/img/about.jpg" alt="Oficina de Rizzo Propiedades en Lanús" loading="lazy" decoding="async" class="about-img" />
+          <div class="about-img-badge" aria-hidden="true">
+            <span class="about-badge-num">10</span>
+            <span class="about-badge-label">años</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       WHY CHOOSE US
+  ═══════════════════════════════════════ -->
+  <section class="why" aria-labelledby="why-title">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Por qué elegirnos</p>
+        <h2 class="section-title" id="why-title">Nuestro compromiso</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-item reveal">
+          <span class="why-num" aria-hidden="true">01</span>
+          <h3 class="why-title-item">Experiencia local</h3>
+          <p class="why-desc">Conocemos el mercado de Lanús y el GBA como nadie. 10 años de operaciones en la zona nos dan una ventaja real.</p>
+        </div>
+        <div class="why-item reveal">
+          <span class="why-num" aria-hidden="true">02</span>
+          <h3 class="why-title-item">Transparencia total</h3>
+          <p class="why-desc">Sin sorpresas ni letras chicas. Te informamos en cada paso del proceso con claridad y honestidad.</p>
+        </div>
+        <div class="why-item reveal">
+          <span class="why-num" aria-hidden="true">03</span>
+          <h3 class="why-title-item">Atención personalizada</h3>
+          <p class="why-desc">Tu propiedad no es un número para nosotros. Te acompañamos desde la primera consulta hasta la firma.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       CONTACT
+  ═══════════════════════════════════════ -->
+  <section class="contact" id="contacto" aria-labelledby="contact-title">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Hablemos</p>
+        <h2 class="section-title" id="contact-title">Contacto</h2>
+        <p class="section-sub">Estamos listos para ayudarte a encontrar tu propiedad ideal</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item reveal">
+            <div class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <p class="contact-label">Dirección</p>
+              <p class="contact-value">Amancio Alcorta 112<br>Lanús, Buenos Aires</p>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            </div>
+            <div>
+              <p class="contact-label">Teléfonos</p>
+              <p class="contact-value">
+                <a href="tel:01142412468">(011) 4241-2468</a><br>
+                <a href="tel:+5491130804156">+54 11 3080-4156</a>
+              </p>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <p class="contact-label">Email</p>
+              <p class="contact-value"><a href="mailto:info@rizzopropiedades.com.ar">info@rizzopropiedades.com.ar</a></p>
+            </div>
+          </div>
+          <div class="contact-item reveal">
+            <div class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <p class="contact-label">Horarios</p>
+              <p class="contact-value">Lun – Vie: 10:00 – 13:00<br>y 15:00 – 18:00</p>
+            </div>
+          </div>
+          <div class="contact-map reveal">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3280.7!2d-58.3932!3d-34.7065!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAmancio%20Alcorta%20112%2C%20Lan%C3%BAs!5e0!3m2!1ses!2sar!4v1"
+              width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"
+              title="Ubicación de Rizzo Propiedades en Lanús"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
+        <div class="contact-form-wrap reveal">
+          <form class="contact-form" id="contact-form" name="contacto" method="POST" data-netlify="true" novalidate aria-label="Formulario de contacto">
+            <input type="hidden" name="form-name" value="contacto" />
+            <div class="form-group">
+              <label for="cf-name">Nombre completo</label>
+              <input type="text" id="cf-name" name="name" required autocomplete="name" placeholder="Tu nombre" />
+            </div>
+            <div class="form-group">
+              <label for="cf-email">Email</label>
+              <input type="email" id="cf-email" name="email" required autocomplete="email" placeholder="tu@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="cf-phone">Teléfono</label>
+              <input type="tel" id="cf-phone" name="phone" autocomplete="tel" placeholder="+54 11 ..." />
+            </div>
+            <div class="form-group">
+              <label for="cf-type">Tipo de consulta</label>
+              <select id="cf-type" name="type">
+                <option value="">Seleccioná una opción</option>
+                <option value="vender">Quiero vender</option>
+                <option value="comprar">Quiero comprar</option>
+                <option value="alquilar">Quiero alquilar</option>
+                <option value="tasacion">Tasación</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cf-msg">Mensaje</label>
+              <textarea id="cf-msg" name="message" rows="4" placeholder="Contanos en qué podemos ayudarte..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-gold btn-full">
+              <span class="btn-text">Enviar consulta</span>
+              <span class="btn-sending" aria-hidden="true">Enviando...</span>
+              <span class="btn-sent" aria-hidden="true">¡Enviado!</span>
+            </button>
+            <p class="form-note">O contactanos directamente por <a href="https://wa.me/5491130804156" target="_blank" rel="noopener">WhatsApp</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

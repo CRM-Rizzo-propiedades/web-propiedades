@@ -1,0 +1,86 @@
+---
+// Formulario de tasación. Lo recibe Netlify Forms (data-netlify): el HTML del build
+// tiene que incluir el <form> para que Netlify lo detecte.
+---
+
+<div class="tasacion-modal" id="tasacion-modal" role="dialog" aria-modal="true" aria-labelledby="tasacion-modal-title" hidden>
+  <div class="tasacion-modal-backdrop" aria-hidden="true"></div>
+  <div class="tasacion-modal-inner">
+    <button class="tasacion-modal-close" id="tasacion-close" aria-label="Cerrar">✕</button>
+
+    <div class="tasacion-modal-header">
+      <p class="section-eyebrow">Sin cargo · Sin compromiso</p>
+      <h2 class="tasacion-modal-title" id="tasacion-modal-title">
+        ¿Cuánto vale<br><em>tu propiedad?</em>
+      </h2>
+      <p class="tasacion-modal-sub">Completá el formulario y te contactamos en 24-48 hs con una valuación profesional de tu propiedad.</p>
+    </div>
+
+    <form class="tasacion-form" id="tasacion-form" name="tasacion" method="POST" data-netlify="true" novalidate>
+      <input type="hidden" name="form-name" value="tasacion" />
+      <div class="tf-grid">
+        <div class="form-group tf-full">
+          <label for="tf-name">Nombre y apellido *</label>
+          <input type="text" id="tf-name" name="nombre" required autocomplete="name" placeholder="Tu nombre completo" />
+        </div>
+        <div class="form-group">
+          <label for="tf-phone">Teléfono de contacto *</label>
+          <input type="tel" id="tf-phone" name="telefono" required autocomplete="tel" placeholder="+54 11 ..." />
+        </div>
+        <div class="form-group">
+          <label for="tf-tipo">Tipo de propiedad *</label>
+          <select id="tf-tipo" name="tipo_propiedad" required>
+            <option value="">Seleccioná</option>
+            <option value="casa">Casa</option>
+            <option value="departamento">Departamento</option>
+            <option value="lote">Lote / Terreno</option>
+            <option value="local">Local comercial</option>
+            <option value="galpon">Galpon / Depósito</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-group tf-full">
+          <label for="tf-dir">Dirección de la propiedad *</label>
+          <input type="text" id="tf-dir" name="direccion" required placeholder="Calle, número, localidad" />
+        </div>
+        <div class="form-group">
+          <label for="tf-ambientes">Cantidad de ambientes</label>
+          <input type="number" id="tf-ambientes" name="ambientes" min="1" max="30" placeholder="Ej: 3" />
+        </div>
+        <div class="form-group">
+          <label for="tf-m2">Metros cuadrados</label>
+          <input type="number" id="tf-m2" name="metros_cuadrados" min="1" placeholder="Ej: 120" />
+        </div>
+        <div class="form-group">
+          <label for="tf-cochera">¿Tiene cochera?</label>
+          <select id="tf-cochera" name="cochera">
+            <option value="">Sin dato</option>
+            <option value="si">Sí</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div class="form-group tf-full">
+          <label for="tf-detalles">Detalles adicionales</label>
+          <textarea id="tf-detalles" name="detalles" rows="3" placeholder="Antigüedad, estado general, servicios, reformas relevantes..."></textarea>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem">
+        <button type="submit" class="btn btn-gold btn-full">
+          <span class="btn-text">Solicitar tasación gratuita</span>
+          <span class="btn-sending" aria-hidden="true">Enviando...</span>
+          <span class="btn-sent" aria-hidden="true">¡Listo!</span>
+        </button>
+        <p class="form-note" style="margin-top:.875rem;text-align:center">Sin cargo · Sin compromiso · Te contactamos en 24-48 hs</p>
+      </div>
+    </form>
+
+    <div class="tasacion-success" id="tasacion-success" hidden>
+      <div class="tasacion-success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="26" height="26"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>¡Solicitud recibida!</h3>
+      <p>Gracias por comunicarte. Te contactaremos en las próximas 24-48 hs con la valuación profesional de tu propiedad.</p>
+    </div>
+
+  </div>
+</div>
