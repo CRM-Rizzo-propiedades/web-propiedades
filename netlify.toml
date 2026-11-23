@@ -16,10 +16,11 @@
   to = "/propiedades"
   status = 301
 
-# La ficha vieja era propiedad.html?id=<nro de Hammer>: los ids nuevos no son los mismos.
+# La ficha vieja era propiedad.html?id=<nro de Hammer>. Netlify conserva el query string y
+# la ficha nueva acepta tanto el id como el número de Hammer.
 [[redirects]]
   from = "/propiedad.html"
-  to = "/propiedades"
+  to = "/propiedades/ficha"
   status = 301
 
 [[headers]]

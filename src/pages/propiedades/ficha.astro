@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Una sola página estática para todas las fichas: /propiedades/ficha?id=<uuid>.
+// El navegador pide la propiedad a property-service y arma el contenido.
+---
+
+<Layout
+  title="Propiedad | Rizzo Propiedades"
+  description="Ficha de la propiedad en Rizzo Propiedades, Lanús."
+  active="propiedades"
+>
+  <div data-prop-detail>
+    <section class="prop-detail-body">
+      <div class="container">
+        <p class="props-empty" data-prop-status>Cargando propiedad…</p>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style is:global>
+  /* Estilos que el sitio anterior tenía en línea. Globales porque el contenido se arma con JS. */
+  .pd-hero-tipo {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pd-map-title {
+    margin-top: 2.5rem;
+  }
+</style>
+
+<script>
+  import { fetchProperty } from '../../lib/properties';
+  import { detailHtml, detailTitle } from '../../lib/properties/render';
+  import { initGallery } from '../../scripts/gallery';
+  import { handleDetailImages } from '../../scripts/images';
+
+  const root = document.querySelector<HTMLElement>('[data-prop-detail]')!;
+  const status = root.querySelector<HTMLElement>('[data-prop-status]')!;
+  const id = new URLSearchParams(location.search).get('id');
+
+  function showMessage(html: string) {
+    status.innerHTML = html;
+  }
+
+  if (!id) {
+    location.replace('/propiedades');
+  } else {
+    fetchProperty(id).then(
+      (p) => {
+        if (!p) {
+          document.title = 'Propiedad no encontrada | Rizzo Propiedades';
+          showMessage(
+            'Esta propiedad ya no está disponible. <a href="/propiedades">Ver todas las propiedades</a>.',
+          );
+          return;
+        }
+        // Si se entró con el número de Hammer (?id=1469), la URL queda con el id definitivo.
+        if (id !== p.id) history.replaceState(null, '', `?id=${encodeURIComponent(p.id)}`);
+        document.title = `${detailTitle(p)} | Rizzo Propiedades`;
+        document.querySelector('meta[name="description"]')?.setAttribute('content', detailTitle(p));
+        root.innerHTML = detailHtml(p);
+        const gallery = root.querySelector<HTMLElement>('[data-gallery]');
+        const refreshGallery = gallery ? initGallery(gallery) : () => {};
+        handleDetailImages(root, refreshGallery);
+      },
+      (error) => {
+        console.error('[propiedades] no se pudo cargar la ficha', error);
+        showMessage(
+          'No pudimos cargar la propiedad. Probá de nuevo en un momento o <a href="/#contacto">consultanos</a>.',
+        );
+      },
+    );
+  }
+</script>

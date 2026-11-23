@@ -2,24 +2,15 @@ import type { Locality, Property } from './types';
 
 export * from './types';
 export * from './format';
+export { fetchProperties, fetchProperty } from './service';
 
 /**
- * Único punto por donde el sitio obtiene propiedades.
- *
- * Por ahora no hay propiedades: devuelve una lista vacía. Cuando exista el backend (una función de
- * Netlify que consulta el servicio de propiedades con sus credenciales; el schema no
- * es público), se reemplaza el cuerpo de estas funciones y nada más.
+ * Las propiedades se piden en el navegador, en cada carga de página, al catálogo
+ * público de property-service (ver service.ts). Las páginas son HTML estático y
+ * los scripts de src/scripts/ arman las tarjetas y la ficha (ver render.ts).
  */
-export async function getProperties(): Promise<Property[]> {
-  return [];
-}
 
-export async function getProperty(id: string): Promise<Property | null> {
-  return (await getProperties()).find((p) => p.id === id) ?? null;
-}
-
-export async function getFeaturedProperties(limit = 6): Promise<Property[]> {
-  const all = await getProperties();
+export function featuredOf(all: Property[], limit = 6): Property[] {
   const featured = all.filter((p) => p.featured);
   return (featured.length ? featured : all).slice(0, limit);
 }

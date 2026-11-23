@@ -1,9 +1,5 @@
 ---
-import PropertyCard from '../components/PropertyCard.astro';
 import Layout from '../layouts/Layout.astro';
-import { getFeaturedProperties } from '../lib/properties';
-
-const featured = await getFeaturedProperties();
 ---
 
 <Layout
@@ -77,15 +73,9 @@ const featured = await getFeaturedProperties();
         <p class="section-sub">Selección premium de nuestra cartera actual</p>
       </div>
 
-      {
-        featured.length > 0 ? (
-          <div class="props-grid">
-            {featured.map((property) => <PropertyCard property={property} />)}
-          </div>
-        ) : (
-          <p class="props-empty">Estamos actualizando nuestra cartera. Consultanos por las propiedades disponibles.</p>
-        )
-      }
+      <!-- Se completa en el navegador con las propiedades de property-service. -->
+      <div class="props-grid" data-featured-grid></div>
+      <p class="props-empty" data-featured-status>Cargando propiedades…</p>
 
       <div class="featured-cta reveal">
         <a href="/propiedades" class="btn btn-outline-dark">Ver todas las propiedades</a>
@@ -301,3 +291,32 @@ const featured = await getFeaturedProperties();
     </div>
   </section>
 </Layout>
+
+<script>
+  import { cardHtml } from '../lib/properties/render';
+  import { featuredOf, fetchProperties } from '../lib/properties';
+  import { handleCardImages } from '../scripts/images';
+  import { enhance } from '../scripts/site';
+
+  const grid = document.querySelector<HTMLElement>('[data-featured-grid]');
+  const status = document.querySelector<HTMLElement>('[data-featured-status]');
+
+  fetchProperties()
+    .then((all) => featuredOf(all))
+    .catch((error) => {
+      console.error('[propiedades] no se pudo cargar el listado', error);
+      return [];
+    })
+    .then((featured) => {
+      if (!grid || !status) return;
+      if (featured.length === 0) {
+        status.textContent = 'Estamos actualizando nuestra cartera. Consultanos por las propiedades disponibles.';
+        grid.hidden = true;
+        return;
+      }
+      grid.innerHTML = featured.map((p) => cardHtml(p)).join('');
+      status.hidden = true;
+      handleCardImages(grid);
+      enhance(grid);
+    });
+</script>
