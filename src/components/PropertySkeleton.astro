@@ -1,0 +1,21 @@
+---
+/** Tarjetas de carga mientras llega el catálogo de property-service. */
+interface Props {
+  count?: number;
+}
+
+const { count = 6 } = Astro.props;
+---
+
+{
+  Array.from({ length: count }, () => (
+    <div class="prop-card prop-card--skeleton" aria-hidden="true">
+      <div class="sk-media"></div>
+      <div class="prop-card-body">
+        <span class="sk-line sk-line--sm"></span>
+        <span class="sk-line"></span>
+        <span class="sk-line sk-line--md"></span>
+      </div>
+    </div>
+  ))
+}

@@ -1,9 +1,6 @@
 ---
-import PropertyCard from '../components/PropertyCard.astro';
 import Layout from '../layouts/Layout.astro';
-import { getFeaturedProperties } from '../lib/properties';
-
-const featured = await getFeaturedProperties();
+import PropertySkeleton from '../components/PropertySkeleton.astro';
 ---
 
 <Layout
@@ -77,15 +74,17 @@ const featured = await getFeaturedProperties();
         <p class="section-sub">Selección premium de nuestra cartera actual</p>
       </div>
 
-      {
-        featured.length > 0 ? (
-          <div class="props-grid">
-            {featured.map((property) => <PropertyCard property={property} />)}
-          </div>
-        ) : (
-          <p class="props-empty">Estamos actualizando nuestra cartera. Consultanos por las propiedades disponibles.</p>
-        )
-      }
+      <!-- Se completa en el navegador con las propiedades de property-service. -->
+      <div class="props-grid" data-featured-grid>
+        <PropertySkeleton count={3} />
+      </div>
+      <p class="props-empty" data-featured-status>Cargando propiedades…</p>
+      <noscript>
+        <p class="props-empty">
+          Para ver las propiedades necesitás activar JavaScript. También podés{' '}
+          <a href="/#contacto">consultanos</a> por las disponibles.
+        </p>
+      </noscript>
 
       <div class="featured-cta reveal">
         <a href="/propiedades" class="btn btn-outline-dark">Ver todas las propiedades</a>
@@ -301,3 +300,49 @@ const featured = await getFeaturedProperties();
     </div>
   </section>
 </Layout>
+
+<script>
+  import { cardHtml } from '../lib/properties/render';
+  import { featuredOf, fetchProperties } from '../lib/properties';
+  import { handleCardImages } from '../scripts/images';
+  import { enhance } from '../scripts/site';
+
+  const grid = document.querySelector<HTMLElement>('[data-featured-grid]');
+  const status = document.querySelector<HTMLElement>('[data-featured-status]');
+
+  function showEmpty() {
+    if (!grid || !status) return;
+    grid.hidden = true;
+    grid.innerHTML = '';
+    status.hidden = false;
+    status.innerHTML =
+      'Estamos actualizando nuestra cartera. <a href="/propiedades">Ver todas las propiedades</a> o <a href="/#contacto">consultanos</a>.';
+  }
+
+  function showError(error: unknown) {
+    console.error('[propiedades] no se pudo cargar el listado', error);
+    if (!grid || !status) return;
+    grid.hidden = true;
+    grid.innerHTML = '';
+    status.hidden = false;
+    status.innerHTML =
+      'No pudimos cargar las propiedades. <a href="/propiedades">Ver todas las propiedades</a> o <a href="/#contacto">consultanos</a>.';
+  }
+
+  if (grid && status) {
+    fetchProperties()
+      .then((all) => {
+        const featured = featuredOf(all);
+        if (featured.length === 0) {
+          showEmpty();
+          return;
+        }
+        grid.hidden = false;
+        grid.innerHTML = featured.map((p, i) => cardHtml(p, false, i < 3)).join('');
+        status.hidden = true;
+        handleCardImages(grid);
+        enhance(grid);
+      })
+      .catch(showError);
+  }
+</script>

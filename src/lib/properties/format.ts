@@ -63,8 +63,9 @@ export function detailSpecs(p: Property): SpecChip[] {
   return specs;
 }
 
+/** La ficha es una sola página estática que lee el id de la URL. */
 export function propertyUrl(p: Pick<Property, 'id'>): string {
-  return `/propiedades/${encodeURIComponent(p.id)}`;
+  return `/propiedades/ficha?id=${encodeURIComponent(p.id)}`;
 }
 
 export function whatsappText(p: Property): string {
@@ -72,6 +73,6 @@ export function whatsappText(p: Property): string {
   return (
     `Hola, me interesa la propiedad: ${TYPE_LABEL[p.type]}` +
     (address ? ` en ${address}` : '') +
-    ` (${OPERATION_LABEL[p.operation]}). ID ${p.id}. ¿Podría darme más información?`
+    ` (${OPERATION_LABEL[p.operation]}). Código ${p.code}. ¿Podría darme más información?`
   );
 }

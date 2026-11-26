@@ -1,9 +1,8 @@
 /**
  * Una propiedad tal como la muestra el sitio.
  *
- * Es independiente de la fuente: hoy salen de datos de ejemplo y más adelante de un
- * backend propio (que consulta el servicio de propiedades). Ese backend devuelve esta
- * forma; el sitio no conoce los códigos de Hammer.
+ * Es independiente de la fuente: `service.ts` convierte el catálogo público de
+ * property-service a esta forma; el sitio no conoce los códigos de Hammer.
  */
 export type Operation = 'venta' | 'alquiler';
 
@@ -34,9 +33,12 @@ export interface Locality {
 export interface Property {
   /** Identificador público (aparece en la URL de la ficha). */
   id: string;
+  /** Código visible (en Hammer, su número): el que conoce la inmobiliaria. */
+  code: string;
   operation: Operation;
   type: PropertyType;
-  title: string;
+  /** El título cargado en Hammer o en el panel; null si no tiene. */
+  title: string | null;
   /** Calle y altura, sin la localidad. */
   street: string | null;
   locality: Locality | null;

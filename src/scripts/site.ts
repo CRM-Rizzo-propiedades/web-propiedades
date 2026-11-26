@@ -138,22 +138,28 @@ function initSmoothScroll() {
 }
 
 /* ── Aparición al hacer scroll ── */
-function initReveals() {
-  const io = new IntersectionObserver(
+let revealObserver: IntersectionObserver | undefined;
+
+function observeReveals(root: ParentNode) {
+  revealObserver ??= new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
           e.target.classList.add('is-visible');
-          io.unobserve(e.target);
+          revealObserver!.unobserve(e.target);
         }
       });
     },
     { threshold: 0.04, rootMargin: '0px 0px -2% 0px' },
   );
-  document.querySelectorAll<HTMLElement>('.reveal').forEach((el, i) => {
+  root.querySelectorAll<HTMLElement>('.reveal:not(.is-visible)').forEach((el, i) => {
     el.style.transitionDelay = `${(i % 4) * 0.08}s`;
-    io.observe(el);
+    revealObserver!.observe(el);
   });
+}
+
+function initReveals() {
+  observeReveals(document);
   // Por las dudas: a los 6 s se muestra lo que esté a la vista.
   setTimeout(() => {
     document.querySelectorAll('.reveal:not(.is-visible)').forEach((el) => {
@@ -191,9 +197,9 @@ function initCountUp() {
 }
 
 /* ── Tilt en tarjetas ── */
-function initTilt() {
+function initTilt(root: ParentNode = document) {
   if (!fineHover) return;
-  document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((card) => {
+  root.querySelectorAll<HTMLElement>('[data-tilt]').forEach((card) => {
     let active = false;
     card.addEventListener('mouseover', () => (active = true));
     card.addEventListener('mouseout', () => {
@@ -321,7 +327,7 @@ function boot() {
   safe(initSmoothScroll, 'initSmoothScroll');
   safe(initReveals, 'initReveals');
   safe(initCountUp, 'initCountUp');
-  safe(initTilt, 'initTilt');
+  safe(() => initTilt(), 'initTilt');
   safe(initHeroParallax, 'initHeroParallax');
   safe(initContactForm, 'initContactForm');
   safe(initTasacion, 'initTasacion');
@@ -329,3 +335,12 @@ function boot() {
 }
 
 boot();
+
+/**
+ * Para contenido que se agrega después de la carga (las tarjetas de propiedades,
+ * que llegan por fetch): aparición al hacer scroll y tilt.
+ */
+export function enhance(root: ParentNode) {
+  safe(() => observeReveals(root), 'observeReveals');
+  safe(() => initTilt(root), 'initTilt');
+}
