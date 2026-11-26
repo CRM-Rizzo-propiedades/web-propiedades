@@ -1657,6 +1657,8 @@ ul[role="list"] { list-style: none; padding: 0; }
   position: relative;
   height: 560px;
   overflow: hidden;
+  /* Oscuro y no blanco: es lo que se ve mientras la foto nueva termina de bajar. */
+  background: var(--ink);
 }
 @media (max-width: 600px) {
   .pd-gal-track { height: 360px; }
@@ -1667,7 +1669,9 @@ ul[role="list"] { list-style: none; padding: 0; }
   position: absolute;
   inset: 0;
 }
-.pd-gal-item.is-active { display: block; }
+.pd-gal-item.is-active { display: block; z-index: 1; }
+/* La que sale queda debajo de la que entra (ver scripts/gallery.ts). */
+.pd-gal-item.is-leaving { z-index: 0; }
 
 /* Blurred background fills the letterbox area (same technique as YouTube vertical video) */
 .pd-gal-bg {
@@ -1685,6 +1689,12 @@ ul[role="list"] { list-style: none; padding: 0; }
   height: 100%;
   object-fit: contain;
   display: block;
+  transition: opacity .35s ease;
+}
+/* Todavía bajando: aparece con un fundido al cargar. */
+.pd-gal-img.is-pending { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .pd-gal-img { transition: none; }
 }
 
 .pd-gal-btn {
