@@ -33,7 +33,20 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:image" content={new URL('/img/hero.jpg', site.url).href} />
     <meta name="theme-color" content="#FFFFFF" />
+    <noscript>
+      <style>
+        .prop-card--skeleton,
+        [data-props-status],
+        [data-featured-status],
+        [data-prop-status],
+        .filter-count {
+          display: none !important;
+        }
+      </style>
+    </noscript>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -9,11 +9,18 @@ import Layout from '../../layouts/Layout.astro';
   title="Propiedad | Rizzo Propiedades"
   description="Ficha de la propiedad en Rizzo Propiedades, Lanús."
   active="propiedades"
+  noindex
 >
   <div data-prop-detail>
     <section class="prop-detail-body">
       <div class="container">
         <p class="props-empty" data-prop-status>Cargando propiedad…</p>
+        <noscript>
+          <p class="props-empty">
+            Para ver esta propiedad necesitás activar JavaScript. También podés{' '}
+            <a href="/propiedades">ver todas las propiedades</a>.
+          </p>
+        </noscript>
       </div>
     </section>
   </div>
@@ -36,7 +43,7 @@ import Layout from '../../layouts/Layout.astro';
 </style>
 
 <script>
-  import { fetchProperty } from '../../lib/properties';
+  import { fetchProperty, type Property } from '../../lib/properties';
   import { detailHtml, detailTitle } from '../../lib/properties/render';
   import { initGallery } from '../../scripts/gallery';
   import { handleDetailImages } from '../../scripts/images';
@@ -49,13 +56,43 @@ import Layout from '../../layouts/Layout.astro';
     status.innerHTML = html;
   }
 
+  function setMeta(selector: string, value: string) {
+    document.querySelector(selector)?.setAttribute('content', value);
+  }
+
+  function absoluteUrl(url: string): string {
+    try {
+      return new URL(url, location.origin).href;
+    } catch {
+      return url;
+    }
+  }
+
+  function setPageTitle(title: string) {
+    document.title = title;
+    setMeta('meta[property="og:title"]', title);
+  }
+
+  function setSocialData(p: Property) {
+    const title = `${detailTitle(p)} | Rizzo Propiedades`;
+    const description =
+      p.description.replace(/\s+/g, ' ').trim().slice(0, 160) || detailTitle(p);
+
+    setPageTitle(title);
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:url"]', location.href);
+    if (p.photos[0]) setMeta('meta[property="og:image"]', absoluteUrl(p.photos[0]));
+  }
+
   if (!id) {
     location.replace('/propiedades');
   } else {
     fetchProperty(id).then(
       (p) => {
         if (!p) {
-          document.title = 'Propiedad no encontrada | Rizzo Propiedades';
+          const title = 'Propiedad no encontrada | Rizzo Propiedades';
+          setPageTitle(title);
           showMessage(
             'Esta propiedad ya no está disponible. <a href="/propiedades">Ver todas las propiedades</a>.',
           );
@@ -63,8 +100,7 @@ import Layout from '../../layouts/Layout.astro';
         }
         // Si se entró con el número de Hammer (?id=1469), la URL queda con el id definitivo.
         if (id !== p.id) history.replaceState(null, '', `?id=${encodeURIComponent(p.id)}`);
-        document.title = `${detailTitle(p)} | Rizzo Propiedades`;
-        document.querySelector('meta[name="description"]')?.setAttribute('content', detailTitle(p));
+        setSocialData(p);
         root.innerHTML = detailHtml(p);
         const gallery = root.querySelector<HTMLElement>('[data-gallery]');
         const refreshGallery = gallery ? initGallery(gallery) : () => {};

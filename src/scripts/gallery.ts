@@ -11,12 +11,26 @@ export function initGallery(root: HTMLElement): () => void {
   const items = () => root.querySelectorAll<HTMLElement>('.pd-gal-item');
 
   let current = 0;
+
+  /**
+   * El fondo desenfocado se arma recién cuando la foto se muestra: si se dejara
+   * en el HTML, todas las fotos se pedirían al abrir la ficha.
+   */
+  function showBackground(item: HTMLElement) {
+    const bg = item.querySelector<HTMLElement>('.pd-gal-bg');
+    const url = bg?.dataset.bg;
+    if (bg && url && !bg.style.backgroundImage) {
+      bg.style.backgroundImage = `url(${JSON.stringify(url)})`;
+    }
+  }
+
   function goTo(index: number) {
     const list = items();
     if (!list.length) return;
     list.forEach((item) => item.classList.remove('is-active'));
     current = (index + list.length) % list.length;
     list[current]!.classList.add('is-active');
+    showBackground(list[current]!);
     if (counter) counter.textContent = `${current + 1} / ${list.length}`;
     controls.forEach((el) => (el.hidden = list.length < 2));
   }
@@ -34,6 +48,8 @@ export function initGallery(root: HTMLElement): () => void {
     },
     { passive: true },
   );
+
+  goTo(0);
 
   // Al sacar una foto, se queda en la misma posición (o la última).
   return () => goTo(Math.min(current, items().length - 1));

@@ -31,8 +31,11 @@ export function esc(value: unknown): string {
 const PIN_ICON =
   '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>';
 
-/** Tarjeta del listado y de la home. `filterable` agrega los data-* que usan los filtros. */
-export function cardHtml(p: Property, filterable = false): string {
+/**
+ * Tarjeta del listado y de la home. `filterable` agrega los data-* que usan los
+ * filtros; `eager` hace que la foto se pida sin esperar al scroll.
+ */
+export function cardHtml(p: Property, filterable = false, eager = false): string {
   const address = formatAddress(p);
   const price = formatPrice(p) ?? 'Consultar precio';
   const specs = cardSpecs(p);
@@ -47,13 +50,14 @@ export function cardHtml(p: Property, filterable = false): string {
         'data-cochera': p.garage ? 1 : 0,
         'data-credito': p.creditEligible ? 1 : 0,
         'data-valor': p.price?.amount ?? 0,
+        'data-moneda': p.price?.currency ?? '',
         'data-zona': p.locality?.id ?? '',
       })
         .map(([k, v]) => ` ${k}="${esc(v)}"`)
         .join('')
     : '';
   const img = p.photos[0]
-    ? `<img src="${esc(p.photos[0])}" alt="${esc(alt)}" decoding="async" class="prop-card-img" data-fallbacks="${esc(p.photos.slice(1, 6).join(' '))}" />`
+    ? `<img src="${esc(p.photos[0])}" alt="${esc(alt)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async" class="prop-card-img" data-fallbacks="${esc(JSON.stringify(p.photos.slice(1, 3)))}" />`
     : '<div class="prop-card-img prop-card-img--ph" aria-hidden="true"></div>';
   const expenses =
     p.operation === 'alquiler' && p.expenses
@@ -93,8 +97,8 @@ function galleryHtml(photos: string[]): string {
   const items = photos
     .map(
       (url, i) => `<div class="pd-gal-item${i === 0 ? ' is-active' : ''}" role="listitem">
-        <div class="pd-gal-bg" style="background-image:url(${esc(JSON.stringify(url))})"></div>
-        <img src="${esc(url)}" alt="Foto ${i + 1} de la propiedad" class="pd-gal-img" />
+        <div class="pd-gal-bg" data-bg="${esc(url)}"></div>
+        <img src="${esc(url)}" alt="Foto ${i + 1} de la propiedad" class="pd-gal-img" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" />
       </div>`,
     )
     .join('');
@@ -125,7 +129,7 @@ export function detailHtml(p: Property): string {
   const map = mapUrl(p);
 
   const hero = p.photos[0]
-    ? `<img class="prop-detail-hero-img" src="${esc(p.photos[0])}" alt="Imagen principal de la propiedad" loading="eager" />`
+    ? `<img class="prop-detail-hero-img" src="${esc(p.photos[0])}" alt="${esc(detailTitle(p))}" loading="eager" />`
     : '<div class="prop-detail-hero-ph"></div>';
 
   return `<div class="prop-detail-hero">

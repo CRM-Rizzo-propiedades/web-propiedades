@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import PropertySkeleton from '../../components/PropertySkeleton.astro';
 import type { PropertyType } from '../../lib/properties';
 
 // Los mismos botones de tipo que el sitio anterior.
@@ -87,9 +88,14 @@ const types: { value: PropertyType; label: string; aria: string }[] = [
         </div>
         <div class="filter-group filter-group--price">
           <span class="filter-label">Precio:</span>
-          <input class="filter-input" id="filter-precio-min" type="number" min="0" step="1000" placeholder="Mín" aria-label="Precio mínimo" />
+          <select class="filter-select" id="filter-moneda" aria-label="Moneda del precio">
+            <option value="">Todas</option>
+            <option value="USD">USD</option>
+            <option value="ARS">ARS</option>
+          </select>
+          <input class="filter-input" id="filter-precio-min" type="number" min="0" step="1000" placeholder="Mín" aria-label="Precio mínimo (elegí una moneda)" title="Elegí una moneda para filtrar por precio" disabled />
           <span class="filter-price-sep">–</span>
-          <input class="filter-input" id="filter-precio-max" type="number" min="0" step="1000" placeholder="Máx" aria-label="Precio máximo" />
+          <input class="filter-input" id="filter-precio-max" type="number" min="0" step="1000" placeholder="Máx" aria-label="Precio máximo (elegí una moneda)" title="Elegí una moneda para filtrar por precio" disabled />
         </div>
         <span class="filter-count" aria-live="polite" aria-atomic="true">Cargando…</span>
       </div>
@@ -100,8 +106,20 @@ const types: { value: PropertyType; label: string; aria: string }[] = [
     <div class="container">
       <h2 class="sr-only" id="props-page-title">Listado de propiedades</h2>
       <!-- Se completa en el navegador con las propiedades de property-service. -->
-      <div class="props-page-grid" data-props-grid></div>
+      <div class="props-page-grid" data-props-grid>
+        <PropertySkeleton count={6} />
+      </div>
       <p class="props-empty" data-props-status>Cargando propiedades…</p>
+      <p class="props-empty" data-filter-empty hidden>
+        No hay propiedades con esos filtros.
+        <button type="button" class="link-button" data-filter-clear>Limpiar filtros</button>
+      </p>
+      <noscript>
+        <p class="props-empty">
+          Para ver las propiedades necesitás activar JavaScript. También podés{' '}
+          <a href="/#contacto">consultanos</a> por las propiedades disponibles.
+        </p>
+      </noscript>
 
       <div class="alquileres-note reveal" data-rentals-note hidden>
         <p class="alquileres-note-title">¿Buscás alquiler?</p>
@@ -149,11 +167,16 @@ const types: { value: PropertyType; label: string; aria: string }[] = [
   const status = document.querySelector<HTMLElement>('[data-props-status]')!;
   const zona = document.querySelector<HTMLSelectElement>('#filter-zona');
   const note = document.querySelector<HTMLElement>('[data-rentals-note]');
+  const count = document.querySelector<HTMLElement>('.filter-count');
 
   function render(properties: Property[]) {
     // Las localidades van antes de initFilters, que toma la elegida de la URL.
-    for (const l of localitiesOf(properties)) zona?.add(new Option(l.name, l.id));
-    grid.innerHTML = properties.map((p) => cardHtml(p, true)).join('');
+    if (zona) {
+      while (zona.options.length > 1) zona.remove(1);
+      for (const l of localitiesOf(properties)) zona.add(new Option(l.name, l.id));
+    }
+    grid.hidden = false;
+    grid.innerHTML = properties.map((p, i) => cardHtml(p, true, i < 3)).join('');
     status.hidden = properties.length > 0;
     if (properties.length === 0) {
       status.innerHTML =
@@ -166,11 +189,21 @@ const types: { value: PropertyType; label: string; aria: string }[] = [
     }
     handleCardImages(grid);
     initFilters();
-    enhance(document);
+    enhance(grid);
+  }
+
+  function showError() {
+    grid.hidden = true;
+    grid.innerHTML = '';
+    status.hidden = false;
+    status.innerHTML =
+      'No pudimos cargar las propiedades. <button type="button" class="link-button" data-retry>Reintentar</button> o <a href="/#contacto">consultanos</a>.';
+    status.querySelector('[data-retry]')?.addEventListener('click', () => location.reload());
+    if (count) count.textContent = '—';
   }
 
   fetchProperties().then(render, (error) => {
     console.error('[propiedades] no se pudo cargar el listado', error);
-    render([]);
+    showError();
   });
 </script>

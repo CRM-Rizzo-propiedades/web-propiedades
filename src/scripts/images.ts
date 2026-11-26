@@ -10,22 +10,73 @@ function onBroken(img: HTMLImageElement, handler: () => void) {
   if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) handler();
 }
 
-/** Tarjetas: `data-fallbacks` lleva las otras fotos separadas por espacio. */
+/** Tope de fotos alternativas por tarjeta. */
+const MAX_FALLBACKS = 2;
+
+/**
+ * Si fallan varias fotos seguidas sin que cargue ninguna, el problema no es una URL
+ * vieja sino el servidor (caído, o limitando con 429 por exceso de requests). Ahí
+ * se dejan de probar alternativas: solo sumarían requests y alargarían el bloqueo.
+ *
+ * El contador es por vista y se reinicia con cada `load`: lo que importa son los
+ * fallos consecutivos, no el total. Con 6, una sola tarjeta con fotos viejas no
+ * alcanza para bloquear al resto.
+ */
+const BLOCKED_AFTER = 6;
+
+/** `data-fallbacks` lleva un JSON con las otras fotos. */
+function parseFallbacks(raw: string | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const value: unknown = JSON.parse(raw);
+    return Array.isArray(value)
+      ? value.filter((url): url is string => typeof url === 'string' && url.length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Tarjetas: las fotos alternativas están en `data-fallbacks`. */
 export function handleCardImages(root: ParentNode) {
+  let consecutiveFailures = 0;
+  let blocked = false;
+
+  const noteLoad = () => {
+    consecutiveFailures = 0;
+    blocked = false;
+  };
+
+  const noteFailure = () => {
+    consecutiveFailures++;
+    if (consecutiveFailures >= BLOCKED_AFTER) blocked = true;
+    return !blocked;
+  };
+
   root.querySelectorAll<HTMLImageElement>('img.prop-card-img').forEach((img) => {
-    const fallbacks = (img.dataset.fallbacks ?? '').split(' ').filter(Boolean);
-    const next = () => {
-      const url = fallbacks.shift();
-      if (url) {
-        img.src = url;
-        onBroken(img, next);
-        return;
-      }
+    const fallbacks = parseFallbacks(img.dataset.fallbacks);
+    let used = 0;
+    img.addEventListener('load', noteLoad);
+
+    const showPlaceholder = () => {
       const ph = document.createElement('div');
       ph.className = 'prop-card-img prop-card-img--ph';
       ph.setAttribute('aria-hidden', 'true');
       img.replaceWith(ph);
     };
+
+    const next = () => {
+      const canRetry = noteFailure();
+      const url = canRetry && used < MAX_FALLBACKS ? fallbacks.shift() : undefined;
+      if (url) {
+        used++;
+        img.src = url;
+        onBroken(img, next);
+        return;
+      }
+      showPlaceholder();
+    };
+
     onBroken(img, next);
   });
 }
@@ -36,16 +87,53 @@ export function handleCardImages(root: ParentNode) {
  */
 export function handleDetailImages(root: ParentNode, onChange: () => void) {
   const hero = root.querySelector<HTMLElement>('[data-hero-photo]');
+  const MAX_HERO_ATTEMPTS = 3;
+  let heroAttempts = 0;
+
+  const heroImg = () => hero?.querySelector<HTMLImageElement>('.prop-detail-hero-img') ?? null;
+
+  function showHeroPlaceholder() {
+    if (hero && !hero.querySelector('.prop-detail-hero-ph')) {
+      hero.innerHTML = '<div class="prop-detail-hero-ph"></div>';
+    }
+  }
+
+  function watchHero(img: HTMLImageElement) {
+    onBroken(img, () => {
+      const photos = [...root.querySelectorAll<HTMLImageElement>('.pd-gal-img')];
+      const current = img.src;
+      const alternative = photos.find((photo) => photo.src !== current);
+      if (alternative && heroAttempts < MAX_HERO_ATTEMPTS) {
+        heroAttempts++;
+        img.src = alternative.src;
+        watchHero(img);
+        return;
+      }
+      showHeroPlaceholder();
+    });
+  }
 
   function refreshHero() {
     if (!hero) return;
+
     const first = root.querySelector<HTMLImageElement>('.pd-gal-img');
-    const img = hero.querySelector<HTMLImageElement>('img');
     if (!first) {
-      hero.innerHTML = '<div class="prop-detail-hero-ph"></div>';
+      showHeroPlaceholder();
       return;
     }
-    if (img && img.src !== first.src) img.src = first.src;
+
+    const img = heroImg();
+    if (!img) {
+      // El hero había quedado en placeholder: se rearma con la foto que quedó.
+      hero.innerHTML = `<img class="prop-detail-hero-img" src="${first.src}" alt="Imagen principal de la propiedad" loading="eager" />`;
+      const created = heroImg();
+      if (created) watchHero(created);
+      return;
+    }
+
+    if (img.src === first.src) return;
+    img.src = first.src;
+    watchHero(img);
   }
 
   root.querySelectorAll<HTMLImageElement>('.pd-gal-img').forEach((img) => {
@@ -57,7 +145,8 @@ export function handleDetailImages(root: ParentNode, onChange: () => void) {
       onChange();
     });
   });
+
   // Sin galería (ninguna foto válida) el hero también puede venir roto.
-  const heroImg = hero?.querySelector<HTMLImageElement>('img');
-  if (heroImg) onBroken(heroImg, refreshHero);
+  const img = heroImg();
+  if (img) watchHero(img);
 }
